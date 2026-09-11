@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sentinel Drain | Hyperlocal Wastewater Biosurveillance Network</title>
+  <meta name="description" content="State Health Department Command Center for Hyperlocal Wastewater Biosurveillance, Vertex AI Outbreak Forecasting, and OR-Tools Redistribution.">
+  
+  <!-- Modern Typography & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet GIS Map CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  
+  <!-- Custom Glassmorphism Stylesheet -->
+  <link rel="stylesheet" href="/static/css/style.css">
+  
+  <!-- Chart.js and Leaflet JS -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- TOP NAVIGATION BAR -->
+    <header class="app-header">
+      <div class="brand-group">
+        <div class="brand-icon-wrapper">
+          <svg class="radar-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" stroke="#00f0ff" stroke-opacity="0.3"/>
+            <circle cx="12" cy="12" r="6" stroke="#00f0ff" stroke-opacity="0.6"/>
+            <circle cx="12" cy="12" r="2" fill="#00f0ff"/>
+            <path d="M12 2v10l7 7" stroke="#00f0ff" stroke-linecap="round"/>
+          </svg>
+          <span class="live-dot"></span>
+        </div>
+        <div>
+          <h1 class="brand-title">SENTINEL DRAIN</h1>
+          <p class="brand-subtitle">Hyperlocal Wastewater Biosurveillance Network &bull; PHC Catchment Early-Warning</p>
+        </div>
+      </div>
+
+      <div class="header-badges">
+        <div class="hud-pill live-stream-badge" id="hud-stream-pill">
+          <span class="live-beacon"></span>
+          <span class="hud-label">DATA FEED</span>
+          <span class="hud-value" id="hud-stream-status">LIVE STREAMING</span>
+        </div>
+        <div class="hud-pill">
+          <span class="hud-label">DISTRICT</span>
+          <span class="hud-value" id="hud-district">Gorakhpur Pilot (5 PHCs)</span>
+        </div>
+        <div class="hud-pill">
+          <span class="hud-label">FLEET NODES</span>
+          <span class="hud-value" id="hud-nodes-count">11 / 11 Online</span>
+        </div>
+        <div class="hud-pill pulse-pill" id="hud-risk-pill">
+          <span class="hud-label">OUTBREAK RISK</span>
+          <span class="hud-value" id="hud-outbreak-status">EVALUATING</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Scenario Controller Selector -->
+        <div class="scenario-selector-wrap">
+          <label for="scenario-select" class="sr-only">Select Simulation Scenario</label>
+          <select id="scenario-select" class="select-input">
+            <option value="OUTBREAK_CHOLERA">Scenario: Pre-Symptomatic Cholera Surge</option>
+            <option value="MONSOON_DILUTION">Scenario: Monsoon Rain Dilution (Edge Case)</option>
+            <option value="PROBE_FOULING">Scenario: Electrode Bio-Fouling Diagnostic</option>
+            <option value="OUTBREAK_ROTAVIRUS">Scenario: Rotavirus Pediatric Outbreak</option>
+            <option value="BASELINE">Scenario: Pristine Healthy Baseline</option>
+          </select>
+          <button id="btn-apply-scenario" class="btn btn-primary btn-sm">Apply Scenario</button>
+          <button id="btn-toggle-stream" class="btn btn-secondary btn-sm" title="Pause or resume live 3s background streaming">Pause Feed</button>
+          <button id="btn-sim-tick" class="btn btn-accent btn-sm" title="Advance sensor telemetry time-step">Tick Sensor</button>
+          <button id="btn-reset-db" class="btn btn-secondary btn-sm" title="Restore pristine initial state">Reset</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- KPI HUD BANNER -->
+    <section class="kpi-banner">
+      <div class="kpi-card" id="kpi-lead-time-card">
+        <div class="kpi-header">
+          <span class="kpi-title">EARLY WARNING LEAD TIME</span>
+          <span class="kpi-badge badge-cyan">Vertex AI</span>
+        </div>
+        <div class="kpi-metric-row">
+          <span class="kpi-number text-cyan" id="kpi-lead-time">4.5</span>
+          <span class="kpi-unit">Days Ahead</span>
+        </div>
+        <p class="kpi-desc">Pre-symptomatic shedding detected before clinical OPD presentation</p>
+      </div>
+
+      <div class="kpi-card" id="kpi-surge-prob-card">
+        <div class="kpi-header">
+          <span class="kpi-title">OUTBREAK SURGE PROBABILITY</span>
+          <span class="kpi-badge badge-rose" id="kpi-risk-badge">High Confidence</span>
+        </div>
+        <div class="kpi-metric-row">
+          <span class="kpi-number text-rose" id="kpi-surge-prob">84.2%</span>
+          <span class="kpi-unit" id="kpi-target-pathogen">V. cholerae O1</span>
+        </div>
+        <p class="kpi-desc" id="kpi-catchment-target">Target Catchment: Rampur PHC (28k pop)</p>
+      </div>
+
+      <div class="kpi-card" id="kpi-stockout-card">
+        <div class="kpi-header">
+          <span class="kpi-title">IMPEDING STOCKOUT WINDOW</span>
+          <span class="kpi-badge badge-amber">Supply Vulnerability</span>
+        </div>
+        <div class="kpi-metric-row">
+          <span class="kpi-number text-amber" id="kpi-stockout-days">1.8</span>
+          <span class="kpi-unit">Days to Zero ORS</span>
+        </div>
+        <p class="kpi-desc">Current stock (450 sachets) insufficient for 204 patient/day surge</p>
+      </div>
+
+      <div class="kpi-card" id="kpi-redistribution-card">
+        <div class="kpi-header">
+          <span class="kpi-title">OR-TOOLS REDISTRIBUTION</span>
+          <span class="kpi-badge badge-emerald">Deterministic Solver</span>
+        </div>
+        <div class="kpi-metric-row">
+          <span class="kpi-number text-emerald" id="kpi-transfers-count">2</span>
+          <span class="kpi-unit">Cross-PHC Routes</span>
+        </div>
+        <p class="kpi-desc">Reallocating 1,632 ORS + 247 IV fluids from Bilaspur Hub</p>
+      </div>
+
+      <div class="kpi-card" id="kpi-approval-card">
+        <div class="kpi-header">
+          <span class="kpi-title">HUMAN APPROVAL GATE</span>
+          <span class="kpi-badge badge-purple" id="kpi-gate-status">Pending Review</span>
+        </div>
+        <div class="kpi-action-row">
+          <button id="btn-open-approval-modal" class="btn btn-warning btn-block">Review Transit Order</button>
+        </div>
+        <p class="kpi-desc">District Health Officer authorization required</p>
+      </div>
+    </section>
+
+    <!-- TAB NAVIGATION -->
+    <nav class="app-tabs">
+      <button class="tab-btn active" data-tab="tab-map">
+        <span class="tab-icon">🗺️</span> GIS Catchment &amp; Drain Network
+      </button>
+      <button class="tab-btn" data-tab="tab-telemetry">
+        <span class="tab-icon">📈</span> Live Node Telemetry &amp; Edge Analytics
+      </button>
+      <button class="tab-btn" data-tab="tab-forecast">
+        <span class="tab-icon">🧠</span> Vertex AI Outbreak Forecasting
+      </button>
+      <button class="tab-btn" data-tab="tab-agents">
+        <span class="tab-icon">🤖</span> Multi-Agent War Room (Google ADK)
+      </button>
+      <button class="tab-btn" data-tab="tab-supply">
+        <span class="tab-icon">📦</span> Supply Chain &amp; Human Approval Gate
+      </button>
+      <button class="tab-btn" data-tab="tab-alerts">
+        <span class="tab-icon">📢</span> Multilingual Advisory Dispatch
+      </button>
+    </nav>
+
+    <!-- MAIN TAB CONTENTS -->
+    <main class="tab-content-container">
+
+      <!-- TAB 1: GIS CATCHMENT MAP -->
+      <div id="tab-map" class="tab-panel active">
+        <div class="map-layout">
+          <div class="map-wrapper">
+            <div id="gis-map" class="map-view"></div>
+            <div class="map-legend">
+              <div class="legend-item"><span class="legend-color normal-dot"></span> Drain Node (Baseline)</div>
+              <div class="legend-item"><span class="legend-color anomaly-dot"></span> Stage 1 Anomaly</div>
+              <div class="legend-item"><span class="legend-color assay-dot"></span> LAMP Bioassay Running</div>
+              <div class="legend-item"><span class="legend-color outbreak-dot"></span> Pathogen Positive</div>
+              <div class="legend-item"><span class="legend-color phc-dot"></span> Primary Health Centre</div>
+              <div class="legend-item"><span class="legend-color route-line"></span> Stock Redistribution Transit</div>
+            </div>
+          </div>
+
+          <aside class="map-sidebar">
+            <h3 class="panel-heading">Catchment Health Summary</h3>
+            <div class="catchment-list" id="catchment-summary-list">
+              <!-- Populated via JavaScript -->
+            </div>
+
+            <h3 class="panel-heading mt-4">Selected Node Inspector</h3>
+            <div class="node-inspector-card" id="node-inspector">
+              <div class="inspector-empty">Click any drain node on the map to inspect live Stage 1 &amp; Stage 2 telemetry.</div>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <!-- TAB 2: LIVE TELEMETRY & EDGE ANALYTICS -->
+      <div id="tab-telemetry" class="tab-panel">
+        <div class="telemetry-controls-bar">
+          <div class="control-field">
+            <label for="node-selector">Select Drain Node:</label>
+            <select id="node-selector" class="select-input">
+              <option value="ND-RAM-01">ND-RAM-01 (Catchment Rampur - Drain Sector 1)</option>
+              <option value="ND-RAM-02">ND-RAM-02 (Catchment Rampur - Drain Sector 2)</option>
+              <option value="ND-RAM-03">ND-RAM-03 (Catchment Rampur - Outfall)</option>
+              <option value="ND-BIL-01">ND-BIL-01 (Catchment Bilaspur - Main Colony)</option>
+              <option value="ND-SIT-01">ND-SIT-01 (Catchment Sitapur - Agricultural Edge)</option>
+              <option value="ND-CHA-01">ND-CHA-01 (Catchment Chauri Chaura - Urban Core)</option>
+            </select>
+          </div>
+          <div class="telemetry-meta" id="node-live-meta">
+            <span>Battery: <strong>96% (12.8V LiFePO4)</strong></span> &bull;
+            <span>Solar: <strong>18.4V</strong></span> &bull;
+            <span>Reagent Cartridge: <strong>26/30 Assays Remaining</strong></span> &bull;
+            <span>Firmware: <strong>ESP32-S3 v1.1.0</strong></span>
+          </div>
+        </div>
+
+        <div class="charts-grid">
+          <!-- Chart 1: pH & ORP Dual Chart -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <h4>Stage 1: pH &amp; Oxidation-Reduction Potential (ORP)</h4>
+              <span class="badge badge-cyan">Pre-symptomatic reducing shift</span>
+            </div>
+            <div class="chart-box">
+              <canvas id="chart-ph-orp"></canvas>
+            </div>
+          </div>
+
+          <!-- Chart 2: Conductivity & Turbidity -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <h4>Stage 1: Electrical Conductivity (uS/cm) &amp; Turbidity (NTU)</h4>
+              <span class="badge badge-amber">Dilution &amp; Runoff Detection</span>
+            </div>
+            <div class="chart-box">
+              <canvas id="chart-cond-turb"></canvas>
+            </div>
+          </div>
+
+          <!-- Chart 3: Edge Rolling Z-Score Anomaly Engine -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <h4>On-Device Rolling Baseline Z-Score Anomaly Score</h4>
+              <span class="badge badge-rose">ESP32 Control-Chart Trigger</span>
+            </div>
+            <div class="chart-box">
+              <canvas id="chart-anomaly"></canvas>
+            </div>
+          </div>
+
+          <!-- Chart 4: Stage 2 LAMP Isothermal Reaction Kinetics -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <h4>Stage 2: Isothermal LAMP Kinetics (63°C PID &amp; Absorbance Ratio)</h4>
+              <span class="badge badge-purple">Colorimetric Amplification</span>
+            </div>
+            <div class="chart-box">
+              <canvas id="chart-lamp-kinetics"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: VERTEX AI FORECASTING -->
+      <div id="tab-forecast" class="tab-panel">
+        <div class="forecast-layout">
+          <div class="forecast-main-col">
+            <div class="forecast-hero-card">
+              <div class="forecast-hero-left">
+                <span class="hero-tag">PRIMARY PREDICTIVE MODEL</span>
+                <h2 class="hero-title" id="forecast-hero-title">Catchment Rampur Outbreak Surge Forecast</h2>
+                <p class="hero-subtitle">Multi-modal predictive inference combining community wastewater telemetry, historical PHC footfall, and seasonal covariates.</p>
+                <div class="hero-stats">
+                  <div class="hero-stat">
+                    <span class="stat-lbl">SURGE PROBABILITY</span>
+                    <span class="stat-val text-rose" id="forecast-prob-val">84.2%</span>
+                  </div>
+                  <div class="hero-stat">
+                    <span class="stat-lbl">ESTIMATED LEAD TIME</span>
+                    <span class="stat-val text-cyan" id="forecast-lead-val">4.5 Days</span>
+                  </div>
+                  <div class="hero-stat">
+                    <span class="stat-lbl">OPD MULTIPLIER</span>
+                    <span class="stat-val text-amber" id="forecast-mult-val">2.4x Surge</span>
+                  </div>
+                </div>
+              </div>
+              <div class="forecast-hero-right">
+                <div class="opd-comparison-box">
+                  <div class="opd-box-item">
+                    <span class="opd-box-lbl">Baseline Footfall</span>
+                    <span class="opd-box-val" id="forecast-base-opd">85 patients/day</span>
+                  </div>
+                  <div class="opd-box-arrow">&rarr;</div>
+                  <div class="opd-box-item">
+                    <span class="opd-box-lbl">Projected Surge</span>
+                    <span class="opd-box-val text-rose" id="forecast-surge-opd">204 patients/day</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- OPD Projected Surge Curve -->
+            <div class="chart-card mt-4">
+              <div class="chart-header">
+                <h4>Projected OPD Footfall Surge Curve vs Baseline Capacity</h4>
+                <span class="badge badge-cyan">3-7 Day Window of Action</span>
+              </div>
+              <div class="chart-box">
+                <canvas id="chart-opd-surge"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="forecast-sidebar">
+            <h3 class="panel-heading">SHAP / Feature Attribution Breakdown</h3>
+            <p class="panel-sub">Why the model generated this prediction (Section 8.2 Explainability):</p>
+            <div class="drivers-list" id="forecast-drivers-list">
+              <!-- Populated via JavaScript -->
+            </div>
+
+            <div class="model-meta-box mt-4">
+              <h4 class="meta-title">Model Specifications</h4>
+              <p>Architecture: <strong>Calibrated Gradient Boosting Classifier &amp; Regressor</strong></p>
+              <p>Vertex AI Endpoint: <strong>projects/sentinel-drain/locations/asia-south1/models/outbreak-v1.2</strong></p>
+              <p>Validation Accuracy: <strong>94.6% AUC-ROC</strong></p>
+              <p>Calibration: <strong>Isotonic regression calibrated</strong></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: MULTI-AGENT WAR ROOM (GOOGLE ADK) -->
+      <div id="tab-agents" class="tab-panel">
+        <div class="agents-overview-bar">
+          <div class="agent-step-badge active-agent"><span class="step-num">1</span> Sentinel Orchestrator</div>
+          <div class="step-arrow">&rarr;</div>
+          <div class="agent-step-badge active-agent"><span class="step-num">2</span> Sensor Intelligence</div>
+          <div class="step-arrow">&rarr;</div>
+          <div class="agent-step-badge active-agent"><span class="step-num">3</span> Epidemiology Specialist</div>
+          <div class="step-arrow">&rarr;</div>
+          <div class="agent-step-badge active-agent"><span class="step-num">4</span> Supply Chain Officer</div>
+          <div class="step-arrow">&rarr;</div>
+          <div class="agent-step-badge active-agent"><span class="step-num">5</span> Risk &amp; Validation Auditor</div>
+        </div>
+
+        <div class="war-room-grid">
+          <!-- Left: Agent Stream Timeline -->
+          <div class="agent-timeline-col">
+            <div class="section-header-row">
+              <h3 class="panel-heading">Live Agent Thought &amp; Tool Execution Trace</h3>
+              <button id="btn-trigger-full-trace" class="btn btn-primary btn-sm">Re-Run Multi-Agent Lifecycle</button>
+            </div>
+            <div class="timeline-container" id="agent-timeline">
+              <!-- Populated via JavaScript -->
+            </div>
+          </div>
+
+          <!-- Right: Evidence & Adversarial Audit Dossier -->
+          <div class="agent-dossier-col">
+            <h3 class="panel-heading">Auditable Evidence Ledger (BigQuery Compatible)</h3>
+            <div class="evidence-cards-wrap" id="evidence-cards">
+              <!-- Populated via JavaScript -->
+            </div>
+
+            <h3 class="panel-heading mt-4">Adversarial Risk Auditor Report</h3>
+            <div class="audit-report-card" id="audit-report-card">
+              <!-- Populated via JavaScript -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 5: SUPPLY CHAIN & HUMAN APPROVAL GATE -->
+      <div id="tab-supply" class="tab-panel">
+        <div class="supply-layout">
+          <div class="supply-left-col">
+            <div class="section-header-row">
+              <h3 class="panel-heading">PHC Network Inventory Status (Gorakhpur Pilot District)</h3>
+              <span class="badge badge-cyan">Updated Live</span>
+            </div>
+
+            <div class="table-container">
+              <table class="data-table" id="inventory-table">
+                <thead>
+                  <tr>
+                    <th>PHC Facility</th>
+                    <th>District</th>
+                    <th>Daily OPD</th>
+                    <th>ORS Packets</th>
+                    <th>IV Fluids (RL)</th>
+                    <th>Antibiotics</th>
+                    <th>Zinc Tablets</th>
+                    <th>Cholera RDTs</th>
+                    <th>Stock Status</th>
+                  </tr>
+                </thead>
+                <tbody id="inventory-tbody">
+                  <!-- Populated via JavaScript -->
+                </tbody>
+              </table>
+            </div>
+
+            <div class="section-header-row mt-4">
+              <h3 class="panel-heading">OR-Tools Deterministic Redistribution Plan</h3>
+              <span class="badge badge-emerald">Linear Programming Solved</span>
+            </div>
+
+            <div class="plans-list" id="redistribution-plans-list">
+              <!-- Populated via JavaScript -->
+            </div>
+          </div>
+
+          <div class="supply-right-col">
+            <div class="human-gate-card">
+              <div class="gate-header">
+                <div class="gate-icon">🛡️</div>
+                <div>
+                  <h3 class="gate-title">Human-in-the-Loop Approval Action Gate</h3>
+                  <p class="gate-desc">State Health Department Official Authorization (PRD FR-18)</p>
+                </div>
+              </div>
+
+              <div class="gate-body">
+                <div class="gate-info-row">
+                  <span class="lbl">Pending Plan:</span>
+                  <span class="val" id="gate-plan-id">PLAN-OR-RAMPUR-01</span>
+                </div>
+                <div class="gate-info-row">
+                  <span class="lbl">Target Beneficiary:</span>
+                  <span class="val" id="gate-target-phc">Rampur Primary Health Centre</span>
+                </div>
+                <div class="gate-info-row">
+                  <span class="lbl">Supplying Source:</span>
+                  <span class="val" id="gate-source-phc">Bilaspur Block Hospital (Surplus)</span>
+                </div>
+                <div class="gate-info-row">
+                  <span class="lbl">Proposed Items:</span>
+                  <span class="val text-cyan" id="gate-items">1,632 ORS Sachets + 247 IV Ringer's Lactate</span>
+                </div>
+                <div class="gate-info-row">
+                  <span class="lbl">Transit Distance / Time:</span>
+                  <span class="val" id="gate-transit">4.6 km (~10 minutes transit)</span>
+                </div>
+                <div class="gate-info-row">
+                  <span class="lbl">Source Safety Reserve:</span>
+                  <span class="val text-emerald">Preserved (&gt;3,500 units remain at Bilaspur)</span>
+                </div>
+
+                <div class="gate-form-group">
+                  <label for="officer-name-input">Authorizing Officer Name:</label>
+                  <input type="text" id="officer-name-input" class="text-input" value="Dr. Arvind Saxena">
+                </div>
+
+                <div class="gate-form-group">
+                  <label for="officer-role-input">Official Designation:</label>
+                  <input type="text" id="officer-role-input" class="text-input" value="District Health Supply Coordinator, Gorakhpur">
+                </div>
+
+                <div class="gate-form-group">
+                  <label for="approval-notes-input">Official Remarks / Modifications:</label>
+                  <textarea id="approval-notes-input" class="textarea-input" rows="2" placeholder="Enter optional authorization directives..."></textarea>
+                </div>
+
+                <div class="gate-buttons-row">
+                  <button id="btn-approve-plan" class="btn btn-success btn-lg">Approve &amp; Issue Transit Order</button>
+                  <button id="btn-reject-plan" class="btn btn-danger btn-lg">Reject Plan</button>
+                </div>
+
+                <div id="gate-feedback" class="gate-feedback-message"></div>
+              </div>
+            </div>
+
+            <!-- Audit trail of past approvals -->
+            <div class="approval-history-card mt-4">
+              <h4 class="panel-heading">District Health Department Authorization Log</h4>
+              <div class="history-list" id="approval-history-list">
+                <!-- Populated via JavaScript -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 6: MULTILINGUAL ALERTS HUB -->
+      <div id="tab-alerts" class="tab-panel">
+        <div class="alerts-layout">
+          <div class="alerts-left-col">
+            <div class="alert-view-card">
+              <div class="alert-view-header">
+                <div class="alert-title-wrap">
+                  <span class="alert-severity-tag severity-high">URGENT HEALTH ADVISORY</span>
+                  <h3 class="alert-main-title" id="alert-display-title">EARLY WARNING: 84% Outbreak Surge Probability in Catchment Rampur</h3>
+                  <span class="alert-timestamp" id="alert-display-timestamp">Generated: Today, 10 minutes ago via Gemini 2.5 Flash</span>
+                </div>
+                <div class="lang-switcher">
+                  <button class="lang-btn active" data-lang="en">English</button>
+                  <button class="lang-btn" data-lang="hi">हिन्दी (Hindi)</button>
+                  <button class="lang-btn" data-lang="kn">ಕನ್ನಡ (Kannada)</button>
+                  <button class="lang-btn" data-lang="ta">தமிழ் (Tamil)</button>
+                </div>
+              </div>
+
+              <div class="alert-body-content">
+                <p id="alert-body-text" class="alert-paragraph">
+                  <!-- Populated via JavaScript -->
+                </p>
+              </div>
+
+              <div class="action-recommended-box">
+                <span class="rec-tag">RECOMMENDED COUNTERMEASURES</span>
+                <p id="alert-rec-action" class="rec-text">Pre-position 1,632 ORS sachets and 247 IV fluid units before Day 4.</p>
+              </div>
+
+              <div class="alert-dispatch-bar">
+                <button id="btn-dispatch-channels" class="btn btn-primary btn-lg">
+                  <span class="btn-icon">📡</span> Broadcast Advisory to Field Health Officers
+                </button>
+                <span id="dispatch-status-msg" class="dispatch-msg"></span>
+              </div>
+            </div>
+
+            <!-- Device Mockups: WhatsApp & SMS Previews -->
+            <div class="mockups-grid mt-4">
+              <div class="mockup-card">
+                <div class="mockup-header whatsapp-header">
+                  <span>📱 WhatsApp Medical Officer Broadcast</span>
+                </div>
+                <div class="mockup-screen">
+                  <div class="whatsapp-bubble">
+                    <div class="bubble-sender">Sentinel Drain Automated Surveillance</div>
+                    <div class="bubble-text" id="mockup-whatsapp-text">
+                      Loading advisory text...
+                    </div>
+                    <div class="bubble-time">10:42 AM &bull; Verified AI Alert</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mockup-card">
+                <div class="mockup-header sms-header">
+                  <span>✉️ National Health Mission SMS Gateway</span>
+                </div>
+                <div class="mockup-screen">
+                  <div class="sms-bubble" id="mockup-sms-text">
+                    Loading SMS format...
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="alerts-sidebar">
+            <h3 class="panel-heading">Recent Dispatched Advisories</h3>
+            <div class="dispatched-alerts-list" id="dispatched-alerts-list">
+              <!-- Populated via JavaScript -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="app-footer">
+      <div>Sentinel Drain v1.1 &bull; Build with AI: Code for Communities (Google Cloud)</div>
+      <div>Track: Smart Health and Supply Chain Resilience &bull; Author: Manush Prajwal</div>
+      <div>Components: ESP32-S3 Firmware &bull; Vertex AI &bull; Google ADK &bull; OR-Tools &bull; Gemini</div>
+    </footer>
+
+  </div>
+
+  <!-- MODAL FOR APPROVAL CONFIRMATION -->
+  <div id="approval-modal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Confirm Redistribution Authorization</h3>
+        <button id="btn-close-modal" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>You are about to issue a formal logistics transit order for:</p>
+        <div class="modal-summary-box" id="modal-summary-box">
+          <!-- Populated via JS -->
+        </div>
+        <p class="modal-warning">This action commits state supply chain logistics and updates the operational inventory ledger.</p>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-modal-cancel" class="btn btn-secondary">Cancel</button>
+        <button id="btn-modal-confirm" class="btn btn-success">Confirm &amp; Dispatch</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Logic -->
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
