@@ -39,13 +39,13 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* =========================================================================
-   1. TAB NAVIGATION
+   1. TAB NAVIGATION & GOOGLE CLOUD DRAWER
    ========================================================================= */
 function initTabs() {
-  const tabButtons = document.querySelectorAll(".tab-btn");
-  tabButtons.forEach(btn => {
+  const navButtons = document.querySelectorAll(".drawer-item, .tab-btn");
+  navButtons.forEach(btn => {
     btn.addEventListener("click", () => {
-      tabButtons.forEach(b => b.classList.remove("active"));
+      navButtons.forEach(b => b.classList.remove("active"));
       document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
 
       btn.classList.add("active");
@@ -231,7 +231,7 @@ function inspectNode(node) {
 
 function switchToTelemetryTab(nodeId) {
   selectedNodeId = nodeId;
-  const tabBtn = document.querySelector('.tab-btn[data-tab="tab-telemetry"]');
+  const tabBtn = document.querySelector('.drawer-item[data-tab="tab-telemetry"], .tab-btn[data-tab="tab-telemetry"]');
   if (tabBtn) tabBtn.click();
   loadNodeTelemetry(nodeId);
 }
@@ -874,6 +874,15 @@ function renderDispatchedAlertsList(alerts) {
    6. EVENT LISTENERS & LIVE ACTIONS
    ========================================================================= */
 function initEventListeners() {
+  // Google Cloud Drawer Toggle
+  document.getElementById("btn-toggle-drawer")?.addEventListener("click", () => {
+    const drawer = document.getElementById("gcp-drawer");
+    if (drawer) drawer.classList.toggle("collapsed");
+    setTimeout(() => {
+      if (leafletMap) leafletMap.invalidateSize();
+    }, 250);
+  });
+
   // Scenario Selection
   document.getElementById("btn-apply-scenario")?.addEventListener("click", async () => {
     const sel = document.getElementById("scenario-select").value;
@@ -894,7 +903,7 @@ function initEventListeners() {
     btn.textContent = "Tick...";
     await fetch("/api/simulation/tick", { method: "POST" });
     await refreshLiveData();
-    btn.textContent = "Tick Sensor";
+    btn.textContent = "Advance Step";
   });
 
   // Live Stream Toggle Button
@@ -903,8 +912,8 @@ function initEventListeners() {
     const res = await fetch("/api/simulation/stream/toggle", { method: "POST" });
     const data = await res.json();
     isStreamingActive = data.is_streaming;
-    btn.textContent = isStreamingActive ? "Pause Feed" : "Resume Feed";
-    document.getElementById("hud-stream-status").textContent = isStreamingActive ? "LIVE STREAMING" : "FEED PAUSED";
+    btn.innerHTML = isStreamingActive ? '<span class="btn-icon">⏸️</span> Pause Feed' : '<span class="btn-icon">▶️</span> Resume Feed';
+    document.getElementById("hud-stream-status").textContent = isStreamingActive ? "LIVE STREAM" : "FEED PAUSED";
   });
 
   // Reset Database Button
@@ -923,10 +932,10 @@ function initEventListeners() {
     loadNodeTelemetry(selectedNodeId);
   });
 
-  // Language Switcher
-  document.querySelectorAll(".lang-btn").forEach(btn => {
+  // Language Switcher (supports .lang-pill and .lang-btn)
+  document.querySelectorAll(".lang-pill, .lang-btn").forEach(btn => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll(".lang-btn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".lang-pill, .lang-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       activeLang = btn.dataset.lang;
       if (currentAlertData) {
