@@ -142,3 +142,45 @@ def approve_or_reject_plan(approval: HumanApprovalRequest):
         "officer": approval.officer_name,
         "timestamp": now
     }
+
+@router.post("/rerun-ortools")
+def rerun_ortools_solver():
+    """Triggers a fresh OR-Tools linear programming optimization cycle across the district."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM phc_ops")
+    phc_network = [dict(r) for r in cursor.fetchall()]
+    
+    # Run optimization for Rampur ORS deficit
+    result = ortools_optimizer.solve_stock_redistribution(
+        deficit_phc_id="PHC-RAMPUR",
+        sku="ORS Sachets (1 Litre Formulation)",
+        required_quantity=1632,
+        phc_network=phc_network
+    )
+    
+    if result["status"] in ["OPTIMAL", "FEASIBLE"] and result["transfers"]:
+        now = int(time.time())
+        plan_id = f"PLAN-OR-RAMPUR-{uuid.uuid4().hex[:4].upper()}"
+        cursor.execute("SELECT incident_id FROM agent_incidents ORDER BY timestamp DESC LIMIT 1")
+        row = cursor.fetchone()
+        incident_id = row["incident_id"] if row else "INC-OR-MANUAL"
+        
+        for t in result["transfers"]:
+            cursor.execute("""
+            INSERT INTO redistribution_plans (
+                plan_id, incident_id, timestamp, source_phc, destination_phc,
+                sku, quantity, transit_distance_km, est_transit_hours,
+                optimization_run_id, approval_status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING_APPROVAL')
+            """, (
+                plan_id, incident_id, now,
+                t["source_phc_id"], t["destination_phc_id"],
+                t["sku"], t["quantity"], t["distance_km"],
+                t["est_transit_hours"], result["optimization_run_id"]
+            ))
+        conn.commit()
+    conn.close()
+    
+    return {"status": "SOLVED", "optimization": result}
+

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Google Cloud Platform &bull; Sentinel Drain Biosurveillance Network</title>
-  <meta name="description" content="Google Cloud Console for Sentinel Drain: Hyperlocal Wastewater Biosurveillance Network for PHC-Level Outbreak Early-Warning.">
+  <title>Sentinel Drain &bull; Hyperlocal Biosurveillance &amp; Health Resilience Platform</title>
+  <meta name="description" content="Sentinel Drain: Autonomous Hyperlocal Wastewater Biosurveillance Platform for PHC-Level Outbreak Early-Warning and Supply Chain Resilience.">
   
   <!-- Google Fonts: Google Sans, Roboto, JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,7 +24,7 @@
 <body class="gcp-console-body">
   <div class="gcp-shell">
     
-    <!-- 1. TOP GOOGLE CLOUD CONSOLE APP BAR -->
+    <!-- 1. TOP APP BAR (GOOGLE ENTERPRISE STYLE) -->
     <header class="gcp-top-bar">
       <div class="gcp-top-left">
         <button id="btn-toggle-drawer" class="gcp-icon-btn" title="Navigation menu">
@@ -32,61 +32,151 @@
         </button>
 
         <div class="gcp-brand">
-          <!-- Google Cloud 4-color Cloud Logo -->
-          <svg class="gcp-cloud-logo" viewBox="0 0 192 155" width="28" height="23">
-            <path fill="#4285F4" d="M152.6 69.2c-1.3 0-2.6.1-3.9.3-5.2-22.3-25.2-38.8-49.1-38.8-19.4 0-36.4 11-44.9 27.2-3.4-1.6-7.3-2.5-11.4-2.5-15 0-27.2 12.2-27.2 27.2 0 1.9.2 3.7.6 5.5C7.2 92.2 0 105.4 0 120.3 0 139.4 15.5 155 34.7 155h117.9c21.7 0 39.4-17.7 39.4-39.4 0-21.7-17.7-39.4-39.4-39.4z"/>
+          <!-- Sentinel Drain Biosensor Droplet & Wave Logo -->
+          <svg viewBox="0 0 24 24" width="24" height="24" style="flex-shrink:0;">
+            <path fill="#1a73e8" d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+            <path fill="#ffffff" d="M12 11a3 3 0 0 0-3 3c0 1.66 1.34 3 3 3s3-1.34 3-3a3 3 0 0 0-3-3zm0 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
           </svg>
-          <span class="gcp-brand-text">Google Cloud</span>
+          <span class="gcp-brand-text" style="font-family:'Google Sans',Roboto,sans-serif; font-size:16px; font-weight:700; color:#202124; letter-spacing:-0.2px;">Sentinel Drain</span>
           <span class="gcp-brand-divider">/</span>
-          <span class="gcp-product-name">Sentinel Drain</span>
+          <span class="gcp-product-name" style="color:#5f6368; font-weight:500; font-size:13px;">Health Defense Console</span>
         </div>
 
-        <div class="gcp-project-selector" title="Active Project">
-          <span class="project-icon">📁</span>
-          <span class="project-name">sentinel-drain-gorakhpur-pilot</span>
+        <div class="gcp-project-selector" id="btn-project-selector" title="Switch Surveillance Catchment District">
+          <span class="project-icon" style="color:var(--google-blue);">📍</span>
+          <span class="project-name" id="current-project-label">Gorakhpur Pilot District (11 Nodes)</span>
           <span class="dropdown-arrow">▼</span>
+        </div>
+
+        <!-- Catchment District Dropdown Popover -->
+        <div class="gcp-popover" id="popover-projects" style="left: 180px;">
+          <div class="popover-header">
+            <span>Select Surveillance Catchment</span>
+            <span class="gcp-chip chip-blue">NHM Pilot</span>
+          </div>
+          <div class="popover-body">
+            <div class="popover-item active" data-project="Gorakhpur Pilot District (11 Nodes)">
+              <strong>Gorakhpur Health District</strong>
+              <span>11 Edge Nodes &bull; Rampur &amp; Bilaspur Catchments &bull; Active Feed</span>
+            </div>
+            <div class="popover-item" data-project="Varanasi Ghats Biosurveillance (8 Nodes)">
+              <strong>Varanasi Catchment Cluster</strong>
+              <span>8 Edge Nodes &bull; Assi &amp; Dashashwamedh Basin &bull; Staging</span>
+            </div>
+            <div class="popover-item" data-project="Patna Ganga Basin Catchment (14 Nodes)">
+              <strong>Patna Health District</strong>
+              <span>14 Edge Nodes &bull; Danapur &amp; Kankarbagh Trunk &bull; Offline</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="gcp-top-center">
+      <div class="gcp-top-center" style="position: relative;">
         <div class="gcp-search-bar">
           <svg class="search-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
           <input type="text" id="gcp-search-input" placeholder="Search biosurveillance nodes, PHCs, alerts, forecasts (/)">
         </div>
+
+        <!-- Global Search Results Popover -->
+        <div class="gcp-popover search-results-popover" id="popover-search-results">
+          <div class="popover-header">
+            <span>Search Results</span>
+            <span style="font-size:10px; color:var(--gcp-text-muted);">Press ESC to dismiss</span>
+          </div>
+          <div class="popover-body" id="search-results-list">
+            <!-- Dynamically populated via JS search -->
+          </div>
+        </div>
       </div>
 
       <div class="gcp-top-right">
-        <div class="gcp-pill gcp-region-pill">
+        <div class="gcp-pill gcp-region-pill" id="btn-region-pill" title="Click to view sensor fleet &amp; gateway telemetry">
           <span class="gcp-pill-dot green-dot"></span>
-          <span>asia-south1</span>
+          <span>11/11 Nodes Online</span>
         </div>
 
-        <div class="gcp-pill gcp-live-pill" id="hud-stream-pill">
+        <!-- Telemetry Network Health Popover -->
+        <div class="gcp-popover" id="popover-region" style="right: 180px;">
+          <div class="popover-header">
+            <span>Sensor Fleet &amp; Gateway Health</span>
+            <span class="gcp-chip chip-green">100% Online</span>
+          </div>
+          <div class="popover-body" style="padding: 12px 16px; font-size:11px;">
+            <div style="margin-bottom:6px;"><strong>Network Domain:</strong> Gorakhpur Pilot Catchment (Uttar Pradesh)</div>
+            <div style="margin-bottom:6px;"><strong>Active Edge Probes:</strong> 11 Optical Turbidity, pH, ORP, ISE &amp; LAMP</div>
+            <div style="margin-bottom:6px;"><strong>LoRaWAN Backhaul:</strong> 865-867 MHz (IN865 Band &bull; 8 Channels)</div>
+            <div style="margin-bottom:6px;"><strong>Telemetry Ingestion Latency:</strong> <span style="color:#1e8e3e; font-weight:bold;">14ms</span></div>
+            <div style="margin-bottom:6px;"><strong>Inference Pipeline:</strong> Outbreak Lead Time Model v1.2 Active</div>
+            <div><strong>Redistribution Optimizer:</strong> LP Supply Allocator Ready</div>
+          </div>
+        </div>
+
+        <div class="gcp-pill gcp-live-pill" id="hud-stream-pill" title="Click to pause or resume stream">
           <span class="live-pulse-beacon"></span>
           <span id="hud-stream-status">LIVE STREAM</span>
         </div>
 
-        <button class="gcp-icon-btn" title="Cloud Shell">
+        <button class="gcp-icon-btn" id="btn-cloud-shell" title="Open Sentinel Drain Edge Stream Console">
           <svg class="gcp-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4V8h16v10zm-2-1h-6v-2h6v2zM7.5 17l-1.41-1.41L8.67 13l-2.58-2.59L7.5 9l4 4-4 4z"/></svg>
         </button>
 
-        <button class="gcp-icon-btn" title="Notifications">
+        <button class="gcp-icon-btn" id="btn-notifications" title="View Biosurveillance Notifications">
           <svg class="gcp-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
           <span class="notif-badge" id="gcp-notif-count">1</span>
         </button>
 
-        <div class="gcp-user-profile" title="State Health Department Admin">
-          <div class="gcp-avatar">SD</div>
+        <!-- Notifications Popover -->
+        <div class="gcp-popover" id="popover-notifications" style="right: 50px; min-width: 320px;">
+          <div class="popover-header">
+            <span>Surveillance Notifications</span>
+            <button id="btn-clear-notifications" style="background:none; border:none; color:var(--google-blue); font-size:11px; cursor:pointer;">Clear All</button>
+          </div>
+          <div class="popover-body" id="notifications-list">
+            <div class="popover-item">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <strong style="color:var(--google-red);">⚠️ Surge Early Warning</strong>
+                <span style="font-size:10px; color:var(--gcp-text-muted);">Just now</span>
+              </div>
+              <span>Catchment Rampur: Stage-2 assay positive for V. cholerae. Surge in 4.5 days.</span>
+            </div>
+            <div class="popover-item">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <strong style="color:var(--google-blue);">📦 OR-Tools Route Ready</strong>
+                <span style="font-size:10px; color:var(--gcp-text-muted);">2m ago</span>
+              </div>
+              <span>Transfer 1,632 ORS sachets from Bilaspur Hub to Rampur PHC.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="gcp-user-profile" id="btn-user-profile" title="Public Health Director &amp; Incident Commander">
+          <div class="gcp-avatar">AS</div>
+        </div>
+
+        <!-- User Profile Popover -->
+        <div class="gcp-popover" id="popover-profile" style="right: 16px;">
+          <div class="popover-header">
+            <span>Health Directorate Session</span>
+            <span class="gcp-chip chip-green">Active Officer</span>
+          </div>
+          <div class="popover-body" style="padding: 12px 16px; font-size:11px;">
+            <div style="font-size:13px; font-weight:700; color:var(--gcp-text-primary);">Dr. Arvind Saxena</div>
+            <div style="color:var(--gcp-text-secondary); margin-bottom:8px;">Chief Medical Officer &amp; Supply Coordinator</div>
+            <div style="margin-bottom:4px;"><strong>Department:</strong> National Health Mission (Uttar Pradesh)</div>
+            <div style="margin-bottom:4px;"><strong>Authorization:</strong> Tier-1 Public Health Emergency Commander</div>
+            <div style="margin-bottom:8px;"><strong>District Jurisdiction:</strong> Gorakhpur Health District</div>
+            <button id="btn-logout" class="gcp-btn gcp-btn-flat gcp-btn-sm gcp-btn-full" style="margin-top:6px;">Switch Officer Profile</button>
+          </div>
         </div>
       </div>
     </header>
 
     <div class="gcp-main-wrapper">
       
-      <!-- 2. COLLAPSIBLE GOOGLE CLOUD LEFT NAVIGATION DRAWER -->
+      <!-- 2. COLLAPSIBLE LEFT NAVIGATION DRAWER -->
       <aside class="gcp-nav-drawer" id="gcp-drawer">
         <div class="drawer-header">
-          <span class="drawer-header-title">HEALTH &amp; BIOSURVEILLANCE</span>
+          <span class="drawer-header-title">BIOSURVEILLANCE &amp; HEALTH DEFENSE</span>
         </div>
 
         <nav class="drawer-nav">
@@ -108,8 +198,8 @@
             <span class="drawer-icon">
               <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
             </span>
-            <span class="drawer-label">Vertex AI Outbreak Forecast</span>
-            <span class="gcp-badge-ai">Vertex AI</span>
+            <span class="drawer-label">Outbreak Forecast &amp; Risk</span>
+            <span class="gcp-badge-ai">ML Lead-Time</span>
           </button>
 
           <button class="drawer-item" data-tab="tab-agents">
@@ -117,7 +207,7 @@
               <svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 8l-4 4h3c0 3.31-2.69 6-6 6-1.01 0-1.97-.25-2.8-.7l-1.46 1.46C8.97 19.54 10.43 20 12 20c4.42 0 8-3.58 8-8h3l-4-4zM6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46C15.03 4.46 13.57 4 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4H6z"/></svg>
             </span>
             <span class="drawer-label">Multi-Agent War Room</span>
-            <span class="gcp-badge-adk">Google ADK</span>
+            <span class="gcp-badge-adk">5-Agent Mesh</span>
           </button>
 
           <div class="drawer-divider"></div>
@@ -126,7 +216,7 @@
             <span class="drawer-icon">
               <svg viewBox="0 0 24 24"><path fill="currentColor" d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg>
             </span>
-            <span class="drawer-label">Supply Chain &amp; OR-Tools</span>
+            <span class="drawer-label">Supply Chain Redistribution</span>
             <span class="gcp-badge-alert" id="drawer-supply-badge">Action Gate</span>
           </button>
 
@@ -143,15 +233,15 @@
           <div class="cloud-status-box">
             <div class="status-row">
               <span class="status-dot green"></span>
-              <span>Vertex AI Service: <strong>Healthy</strong></span>
+              <span>Predictive ML Service: <strong>Healthy</strong></span>
             </div>
             <div class="status-row">
               <span class="status-dot green"></span>
-              <span>BigQuery Ingestion: <strong>Active</strong></span>
+              <span>Telemetry Ingestion: <strong>Active</strong></span>
             </div>
             <div class="status-row">
               <span class="status-dot green"></span>
-              <span>OR-Tools Engine: <strong>Ready</strong></span>
+              <span>OR-Tools Optimizer: <strong>Ready</strong></span>
             </div>
           </div>
         </div>
@@ -163,11 +253,11 @@
         <!-- BREADCRUMB & TOOLBAR -->
         <div class="gcp-breadcrumb-bar">
           <div class="breadcrumb-trail">
-            <span>Google Cloud</span>
+            <span>National Health Mission</span>
             <span class="sep">&gt;</span>
-            <span>Healthcare &amp; Life Sciences</span>
+            <span>Uttar Pradesh Biosurveillance</span>
             <span class="sep">&gt;</span>
-            <span>Sentinel Drain Surveillance</span>
+            <span>Drain Sentinel Network</span>
             <span class="sep">&gt;</span>
             <span class="current-crumb">Gorakhpur Pilot Health District</span>
           </div>
@@ -186,6 +276,9 @@
             </div>
 
             <div class="toolbar-btn-group">
+              <button id="btn-quick-surge" class="gcp-btn gcp-btn-danger" title="Instantly trigger outbreak surge simulation">
+                <span class="btn-icon">🔥</span> Outbreak Surge
+              </button>
               <button id="btn-toggle-stream" class="gcp-btn gcp-btn-secondary" title="Pause or resume live 3.5s background streaming">
                 <span class="btn-icon">⏸️</span> Pause Feed
               </button>
@@ -201,7 +294,7 @@
 
         <!-- 4. GOOGLE CLOUD KPI METRIC CHIPS -->
         <section class="gcp-kpi-row">
-          <div class="gcp-card kpi-tile">
+          <div class="gcp-card kpi-tile" style="cursor:pointer;" onclick="document.querySelector('[data-tab=\'tab-forecast\']').click()" title="Click to view Vertex AI Forecasting">
             <div class="kpi-top">
               <span class="kpi-label">EARLY WARNING LEAD TIME</span>
               <span class="gcp-chip chip-blue">Vertex AI</span>
@@ -213,7 +306,7 @@
             <span class="kpi-sub">Pre-symptomatic detection ahead of OPD presentation</span>
           </div>
 
-          <div class="gcp-card kpi-tile">
+          <div class="gcp-card kpi-tile" style="cursor:pointer;" onclick="document.querySelector('[data-tab=\'tab-agents\']').click()" title="Click to view Multi-Agent War Room">
             <div class="kpi-top">
               <span class="kpi-label">SURGE PROBABILITY</span>
               <span class="gcp-chip chip-red" id="kpi-risk-badge">High Alert</span>
@@ -225,7 +318,7 @@
             <span class="kpi-sub" id="kpi-catchment-target">Target: Rampur PHC (28k pop)</span>
           </div>
 
-          <div class="gcp-card kpi-tile">
+          <div class="gcp-card kpi-tile" style="cursor:pointer;" onclick="document.querySelector('[data-tab=\'tab-supply\']').click()" title="Click to view Supply Chain Inventory">
             <div class="kpi-top">
               <span class="kpi-label">STOCKOUT WINDOW</span>
               <span class="gcp-chip chip-yellow">Deficit Risk</span>
@@ -237,7 +330,7 @@
             <span class="kpi-sub">Current ORS stock insufficient for surge volume</span>
           </div>
 
-          <div class="gcp-card kpi-tile">
+          <div class="gcp-card kpi-tile" style="cursor:pointer;" onclick="document.querySelector('[data-tab=\'tab-supply\']').click()" title="Click to view OR-Tools Plan">
             <div class="kpi-top">
               <span class="kpi-label">OR-TOOLS REDISTRIBUTION</span>
               <span class="gcp-chip chip-green">Linear Programming</span>
@@ -269,6 +362,10 @@
                 <div class="card-title-bar">
                   <h3>Interactive Catchment Geospatial Topology</h3>
                   <div class="card-actions">
+                    <button id="btn-map-center" class="gcp-btn gcp-btn-flat gcp-btn-sm" title="Center map on Gorakhpur District">🎯 Center</button>
+                    <button id="btn-map-filter-all" class="gcp-btn gcp-btn-flat gcp-btn-sm active">All</button>
+                    <button id="btn-map-filter-anomalies" class="gcp-btn gcp-btn-flat gcp-btn-sm">⚠️ Anomalies</button>
+                    <button id="btn-map-filter-phcs" class="gcp-btn gcp-btn-flat gcp-btn-sm">🏥 PHCs</button>
                     <span class="gcp-chip chip-neutral" id="map-nodes-count">11 Drain Nodes Online</span>
                   </div>
                 </div>
@@ -323,9 +420,26 @@
                     <option value="ND-CHA-01">ND-CHA-01 (Catchment Chauri Chaura - Urban Core)</option>
                   </select>
                 </div>
-                <div class="telemetry-chip-row" id="node-live-meta">
-                  <!-- Live Telemetry Metadata -->
+                <div class="gcp-segmented-group" id="telemetry-time-range">
+                  <button class="gcp-segmented-btn" data-hours="6">6h</button>
+                  <button class="gcp-segmented-btn" data-hours="12">12h</button>
+                  <button class="gcp-segmented-btn active" data-hours="24">24h</button>
+                  <button class="gcp-segmented-btn" data-hours="48">All</button>
                 </div>
+                <div class="tab-action-group">
+                  <button id="btn-trigger-stage2" class="gcp-btn gcp-btn-primary gcp-btn-sm" title="Run on-demand isothermal LAMP bioassay">
+                    🔬 Trigger LAMP Bioassay
+                  </button>
+                  <button id="btn-clean-sensor" class="gcp-btn gcp-btn-secondary gcp-btn-sm" title="Clean probe biofilm and restore nominal calibration">
+                    🧼 Clean &amp; Recalibrate
+                  </button>
+                  <button id="btn-export-telemetry" class="gcp-btn gcp-btn-flat gcp-btn-sm" title="Download time-series CSV">
+                    📥 Export CSV
+                  </button>
+                </div>
+              </div>
+              <div class="telemetry-chip-row" id="node-live-meta">
+                <!-- Live Telemetry Metadata -->
               </div>
             </div>
 
@@ -383,9 +497,25 @@
                 <div class="gcp-card forecast-banner-card">
                   <div class="forecast-banner-header">
                     <div>
-                      <span class="gcp-chip chip-blue mb-1">VERTEX AI PREDICTIVE PIPELINE</span>
+                      <span class="gcp-chip chip-blue mb-1">EPIDEMIOLOGICAL PREDICTIVE ENGINE</span>
                       <h2 id="forecast-hero-title">Catchment Rampur Outbreak Surge Forecast</h2>
                       <p class="forecast-subtitle">Multi-modal predictive inference combining community wastewater telemetry, historical PHC footfall, and seasonal disease priors.</p>
+                    </div>
+                    <div class="tab-action-group">
+                      <label for="forecast-catchment-select" style="font-size:11px; font-weight:500; color:var(--gcp-text-secondary);">Catchment:</label>
+                      <select id="forecast-catchment-select" class="gcp-select">
+                        <option value="CAT-RAMPUR">Catchment Rampur (PHC Rampur)</option>
+                        <option value="CAT-BILASPUR">Catchment Bilaspur (Bilaspur Block Hospital)</option>
+                        <option value="CAT-SITAPUR">Catchment Sitapur (Sitapur Clinic)</option>
+                        <option value="CAT-CHAURI">Catchment Chauri Chaura (Chauri Chaura Health Post)</option>
+                        <option value="CAT-MAHARAJ">Catchment Maharajganj (Maharajganj Center)</option>
+                      </select>
+                      <button id="btn-run-inference" class="gcp-btn gcp-btn-primary gcp-btn-sm" title="Re-evaluate model on latest sensor values">
+                        ⚡ Run Inference Now
+                      </button>
+                      <button id="btn-export-forecast" class="gcp-btn gcp-btn-secondary gcp-btn-sm" title="View print-ready bulletin">
+                        📄 Epidemiological Bulletin
+                      </button>
                     </div>
                   </div>
 
@@ -413,7 +543,14 @@
                 <div class="gcp-card mt-3">
                   <div class="card-title-bar">
                     <h4>Projected OPD Surge Timeline vs Health Centre Baseline Capacity</h4>
-                    <span class="gcp-chip chip-blue">3-7 Day Action Window</span>
+                    <div class="tab-action-group">
+                      <div class="gcp-segmented-group" id="forecast-horizon-group">
+                        <button class="gcp-segmented-btn" data-horizon="3">3-Day</button>
+                        <button class="gcp-segmented-btn active" data-horizon="7">7-Day</button>
+                        <button class="gcp-segmented-btn" data-horizon="14">14-Day</button>
+                      </div>
+                      <span class="gcp-chip chip-blue">3-7 Day Action Window</span>
+                    </div>
                   </div>
                   <div class="chart-canvas-wrap-large">
                     <canvas id="chart-opd-surge"></canvas>
@@ -438,10 +575,10 @@
                   </div>
                   <div class="model-spec-table">
                     <div class="spec-row"><span>Architecture:</span> <strong>Calibrated Gradient Boosting</strong></div>
-                    <div class="spec-row"><span>Vertex AI Endpoint:</span> <code>projects/sentinel-drain/models/v1.2</code></div>
-                    <div class="spec-row"><span>Region:</span> <strong>asia-south1</strong></div>
+                    <div class="spec-row"><span>Inference Registry:</span> <code>models/sentinel-lead-time-v1.2</code></div>
                     <div class="spec-row"><span>Validation AUC-ROC:</span> <strong>0.946</strong></div>
                     <div class="spec-row"><span>Lead-Time Calibration:</span> <strong>Isotonic Regressor (3-7d)</strong></div>
+                    <div class="spec-row"><span>Feature Attribution:</span> <strong>SHAP TreeExplainer</strong></div>
                   </div>
                 </div>
               </div>
@@ -468,7 +605,11 @@
               <div class="gcp-card">
                 <div class="card-title-bar">
                   <h3>Live Agent Thought &amp; Tool Execution Trace</h3>
-                  <button id="btn-trigger-full-trace" class="gcp-btn gcp-btn-secondary gcp-btn-sm">Trigger Agent Lifecycle</button>
+                  <div class="tab-action-group">
+                    <button id="btn-trigger-full-trace" class="gcp-btn gcp-btn-primary gcp-btn-sm">🤖 Trigger Agent Lifecycle</button>
+                    <button id="btn-view-evidence-raw" class="gcp-btn gcp-btn-secondary gcp-btn-sm">📋 View Evidence Dossier</button>
+                    <button id="btn-adversarial-test" class="gcp-btn gcp-btn-flat gcp-btn-sm">🛡️ Adversarial Test</button>
+                  </div>
                 </div>
                 <div class="adk-timeline" id="agent-timeline">
                   <!-- Populated dynamically via live API -->
@@ -479,7 +620,7 @@
                 <div class="gcp-card">
                   <div class="card-title-bar">
                     <h3>Auditable Evidence Ledger</h3>
-                    <span class="gcp-chip chip-neutral">BigQuery Compatible</span>
+                    <span class="gcp-chip chip-neutral">Cryptographic Ledger</span>
                   </div>
                   <div class="evidence-list-scroll" id="evidence-cards">
                     <!-- Populated dynamically via live API -->
@@ -505,7 +646,7 @@
                 <div class="gcp-card">
                   <div class="card-title-bar">
                     <h3>PHC Operational Inventory Ledger</h3>
-                    <span class="gcp-chip chip-blue">Live BigQuery Sync</span>
+                    <span class="gcp-chip chip-blue">Live Database Sync</span>
                   </div>
                   <div class="gcp-table-responsive">
                     <table class="gcp-table" id="inventory-table">
@@ -532,7 +673,11 @@
                 <div class="gcp-card mt-3">
                   <div class="card-title-bar">
                     <h3>Google OR-Tools Optimization Results</h3>
-                    <span class="gcp-chip chip-green">Zero Hallucination Solver</span>
+                    <div class="tab-action-group">
+                      <button id="btn-rerun-ortools" class="gcp-btn gcp-btn-primary gcp-btn-sm">⚙️ Re-run OR-Tools Solver</button>
+                      <button id="btn-download-transit" class="gcp-btn gcp-btn-secondary gcp-btn-sm">📄 Download Transit Pass</button>
+                      <span class="gcp-chip chip-green">Zero Hallucination Solver</span>
+                    </div>
                   </div>
                   <div class="redistribution-plans-wrap" id="redistribution-plans-list">
                     <!-- Populated dynamically via live API -->
@@ -620,6 +765,15 @@
                     <button id="btn-dispatch-channels" class="gcp-btn gcp-btn-primary">
                       <span>📡</span> Broadcast Advisory to Field Health Officers
                     </button>
+                    <button id="btn-copy-alert" class="gcp-btn gcp-btn-secondary gcp-btn-sm" title="Copy text to clipboard">
+                      📋 Copy Advisory Text
+                    </button>
+                    <button id="btn-test-wa" class="gcp-btn gcp-btn-flat gcp-btn-sm" title="Test WhatsApp channel dispatch">
+                      📱 Push WhatsApp
+                    </button>
+                    <button id="btn-test-sms" class="gcp-btn gcp-btn-flat gcp-btn-sm" title="Test SMS gateway delivery">
+                      ✉️ Push SMS
+                    </button>
                     <span id="dispatch-status-msg" class="broadcast-feedback"></span>
                   </div>
                 </div>
@@ -684,7 +838,7 @@
 
   </div>
 
-  <!-- MODAL FOR HUMAN APPROVAL CONFIRMATION -->
+  <!-- MODAL 1: HUMAN APPROVAL CONFIRMATION -->
   <div id="approval-modal" class="gcp-modal-backdrop">
     <div class="gcp-modal-dialog">
       <div class="modal-title-bar">
@@ -704,6 +858,84 @@
       </div>
     </div>
   </div>
+
+  <!-- MODAL 2: RAW EVIDENCE DOSSIER -->
+  <div id="modal-raw-evidence" class="gcp-modal-backdrop">
+    <div class="gcp-modal-dialog" style="max-width: 680px;">
+      <div class="modal-title-bar">
+        <h3>Auditable Incident Evidence Dossier (JSON)</h3>
+        <button id="btn-close-evidence-modal" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-content">
+        <p style="margin-bottom:8px; font-size:11px; color:var(--gcp-text-secondary);">Immutable cryptographic record captured across all 5 autonomous agents and edge sensors:</p>
+        <pre id="raw-evidence-json" style="background:#1e1e1e; color:#4ade80; padding:14px; border-radius:6px; font-family:var(--font-gcp-mono); font-size:11px; max-height:360px; overflow:auto;"></pre>
+      </div>
+      <div class="modal-btn-row">
+        <button id="btn-copy-evidence-json" class="gcp-btn gcp-btn-secondary">Copy JSON</button>
+        <button id="btn-close-evidence-modal-2" class="gcp-btn gcp-btn-primary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: OFFICIAL INTER-PHC TRANSIT PASS -->
+  <div id="modal-transit-pass" class="gcp-modal-backdrop">
+    <div class="gcp-modal-dialog" style="max-width: 620px;">
+      <div class="modal-title-bar">
+        <h3>National Health Mission &bull; Inter-PHC Stock Transit Pass</h3>
+        <button id="btn-close-transit-modal" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-content" id="transit-pass-body" style="font-size:12px; line-height:1.6;">
+        <!-- Populated via JS -->
+      </div>
+      <div class="modal-btn-row">
+        <button id="btn-print-transit-pass" class="gcp-btn gcp-btn-secondary">🖨️ Print / Save PDF</button>
+        <button id="btn-close-transit-modal-2" class="gcp-btn gcp-btn-primary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 4: EPIDEMIOLOGICAL FORECAST BULLETIN -->
+  <div id="modal-forecast-report" class="gcp-modal-backdrop">
+    <div class="gcp-modal-dialog" style="max-width: 640px;">
+      <div class="modal-title-bar">
+        <h3>Clinical Outbreak Early-Warning Bulletin</h3>
+        <button id="btn-close-bulletin-modal" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-content" id="forecast-bulletin-body" style="font-size:12px; line-height:1.6;">
+        <!-- Populated via JS -->
+      </div>
+      <div class="modal-btn-row">
+        <button id="btn-print-bulletin" class="gcp-btn gcp-btn-secondary">🖨️ Print Bulletin</button>
+        <button id="btn-close-bulletin-modal-2" class="gcp-btn gcp-btn-primary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. EDGE STREAM TERMINAL SLIDING DRAWER -->
+  <div class="gcp-cloud-shell-drawer" id="cloud-shell-drawer">
+    <div class="shell-header">
+      <div class="shell-title-group">
+        <span style="color:var(--google-blue); font-weight:bold;">&gt;_</span>
+        <span class="shell-tab">Sentinel Drain &bull; Edge Stream Console</span>
+        <span style="font-size:10px; color:#888;">IN865 LoRaWAN Gateway Buffer (Gorakhpur)</span>
+      </div>
+      <div class="shell-actions">
+        <button class="shell-btn" id="btn-refresh-shell">Refresh Stream</button>
+        <button class="shell-btn" id="btn-clear-shell">Clear</button>
+        <button class="shell-btn" id="btn-close-shell">&times; Close Console</button>
+      </div>
+    </div>
+    <div class="shell-terminal-body" id="shell-terminal-output">
+      <!-- Live logs populated via JS -->
+    </div>
+    <div class="shell-prompt-row">
+      <span class="shell-prompt">sentinel-drain:~$</span>
+      <input type="text" class="shell-input" id="shell-command-input" placeholder="Type command (e.g. status, tick, nodes, ortools, clear, exit)...">
+    </div>
+  </div>
+
+  <!-- 8. TOAST NOTIFICATION CONTAINER -->
+  <div class="gcp-toast-container" id="toast-container"></div>
 
   <!-- Main Application Logic -->
   <script src="/static/js/app.js"></script>

@@ -105,3 +105,52 @@ def get_node_history(node_id: str, limit: int = 48):
     conn.close()
     # Return chronologically ascending
     return [dict(r) for r in reversed(rows)]
+
+@router.post("/trigger-stage2/{node_id}")
+def trigger_manual_stage2(node_id: str):
+    """Triggers an on-demand Stage-2 LAMP bioassay on a specific edge node."""
+    if node_id not in fleet_simulator.nodes:
+        raise HTTPException(status_code=404, detail=f"Node {node_id} not found in fleet.")
+    
+    node = fleet_simulator.nodes[node_id]
+    target_pathogen = "Vibrio cholerae O1/O139" if "RAM" in node_id or "BIL" in node_id else "Rotavirus Group A"
+    assay = node.run_isothermal_lamp_assay(target_pathogen=target_pathogen, force_result="POSITIVE")
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+    INSERT INTO readings_stage2 (
+        node_id, catchment_id, timestamp, target_pathogen,
+        assay_temperature_c, optical_absorbance_ratio, result, confidence
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        assay.node_id, assay.catchment_id, assay.timestamp,
+        assay.target_pathogen, assay.assay_temperature_c,
+        assay.optical_absorbance_ratio, assay.result, assay.confidence
+    ))
+    cursor.execute("""
+    UPDATE nodes SET reagents_remaining = ?, last_seen = ? WHERE node_id = ?
+    """, (assay.cartridge_remaining, assay.timestamp, assay.node_id))
+    conn.commit()
+    conn.close()
+    
+    return {"status": "TRIGGERED", "node_id": node_id, "assay": assay.__dict__}
+
+@router.post("/clean/{node_id}")
+def clean_sensor_probe(node_id: str):
+    """Performs manual/ultrasonic sensor cleaning and clears fouling flags."""
+    if node_id not in fleet_simulator.nodes:
+        raise HTTPException(status_code=404, detail=f"Node {node_id} not found in fleet.")
+    
+    node = fleet_simulator.nodes[node_id]
+    node.probe_fouling = False
+    node.status = "ONLINE"
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE nodes SET status = 'ONLINE' WHERE node_id = ?", (node_id,))
+    conn.commit()
+    conn.close()
+    
+    return {"status": "CLEANED", "node_id": node_id, "message": f"Electrode surfaces for {node_id} cleaned. Calibration restored to 100%."}
+

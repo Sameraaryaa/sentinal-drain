@@ -229,7 +229,7 @@ python -m pytest tests/ -v
 python -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000
 ```
 
-### 4. Open the Google Cloud Console Dashboard
+### 4. Open the Sentinel Drain Command Console
 Navigate to **[http://127.0.0.1:8000/](http://127.0.0.1:8000/)** in your browser.
 
 ---
@@ -246,7 +246,7 @@ Navigate to **[http://127.0.0.1:8000/](http://127.0.0.1:8000/)** in your browser
 | **Deterministic Redistribution** | **BUILT & TESTED** | Google OR-Tools Linear Programming solver calculating optimal cross-PHC routes without LLM hallucinations. |
 | **Human-in-the-Loop Gate** | **BUILT & TESTED** | District Health Officer approval action gate with digital audit logging into BigQuery-compatible storage. |
 | **Multilingual Alert Broadcast** | **BUILT & TESTED** | Actionable plain-language alerts formatted for WhatsApp & SMS in English, Hindi, Kannada, and Tamil. |
-| **Google Cloud Enterprise UI** | **BUILT & TESTED** | Full Google Cloud Console layout with collapsible left drawer, project selector, region pill, and live GIS map. |
+| **Google Enterprise UI** | **BUILT & TESTED** | Enterprise public health operational portal designed with Google design standards (Material 3, Google Sans typography, collapsible rail, live GIS mapping). |
 | *Wet-Lab LAMP Primer Validation* | *ROADMAP* | Primer bench testing with clinical stool samples in BSL-2 facility (deliberate hackathon scope separation). |
 | *Field Biosensor Regulatory Filings* | *ROADMAP* | Central Drugs Standard Control Organisation (CDSCO) non-diagnostic early-warning certification. |
 

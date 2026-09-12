@@ -1522,6 +1522,300 @@ body.gcp-console-body {
 .mb-1 { margin-bottom: 4px; }
 .mb-3 { margin-bottom: 12px; }
 
+/* =========================================================================
+   8. GCP POPOVERS & DROPDOWN MENUS
+   ========================================================================= */
+.gcp-popover {
+  position: absolute;
+  top: 48px;
+  background: var(--gcp-bg-surface);
+  border: 1px solid var(--gcp-border);
+  border-radius: 8px;
+  box-shadow: var(--gcp-shadow-2);
+  z-index: 2000;
+  display: none;
+  min-width: 280px;
+  max-width: 420px;
+  animation: fadeInDown 0.15s ease-out;
+}
+
+.gcp-popover.show {
+  display: block;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.popover-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--gcp-border-light);
+  font-family: var(--font-gcp-display);
+  font-weight: 700;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.popover-body {
+  padding: 8px 0;
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.popover-item {
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  cursor: pointer;
+  transition: background-color 0.12s;
+}
+
+.popover-item:hover {
+  background-color: var(--gcp-bg-hover);
+}
+
+.popover-item.active {
+  background-color: var(--gcp-bg-selected);
+}
+
+.popover-item strong {
+  font-size: 12px;
+  color: var(--gcp-text-primary);
+}
+
+.popover-item span {
+  font-size: 11px;
+  color: var(--gcp-text-secondary);
+}
+
+/* Global Search Dropdown */
+.search-results-popover {
+  top: 44px;
+  left: 0;
+  right: 0;
+  width: 100%;
+}
+
+.search-category-title {
+  padding: 6px 16px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--gcp-text-muted);
+  letter-spacing: 0.5px;
+  background: var(--gcp-bg-app);
+}
+
+/* =========================================================================
+   9. GOOGLE CLOUD SHELL TERMINAL DRAWER
+   ========================================================================= */
+.gcp-cloud-shell-drawer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 320px;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  border-top: 2px solid var(--google-blue);
+  z-index: 2500;
+  display: none;
+  flex-direction: column;
+  box-shadow: 0 -4px 16px rgba(0,0,0,0.3);
+  font-family: var(--font-gcp-mono);
+  animation: slideUp 0.2s cubic-bezier(0, 0, 0.2, 1);
+}
+
+.gcp-cloud-shell-drawer.show {
+  display: flex;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.shell-header {
+  background: #252526;
+  border-bottom: 1px solid #333333;
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-family: var(--font-gcp-display);
+}
+
+.shell-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.shell-tab {
+  background: #1e1e1e;
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 4px 4px 0 0;
+  font-size: 11px;
+  font-family: var(--font-gcp-mono);
+}
+
+.shell-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.shell-btn {
+  background: transparent;
+  border: 1px solid #444;
+  color: #ccc;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.shell-btn:hover {
+  background: #333;
+  color: #fff;
+}
+
+.shell-terminal-body {
+  flex: 1;
+  padding: 12px 16px;
+  overflow-y: auto;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.shell-log-line {
+  margin-bottom: 3px;
+  word-break: break-all;
+}
+
+.shell-prompt-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  background: #181818;
+  border-top: 1px solid #333;
+}
+
+.shell-prompt {
+  color: #4ade80;
+  font-weight: bold;
+}
+
+.shell-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-family: var(--font-gcp-mono);
+  font-size: 12px;
+  outline: none;
+}
+
+/* =========================================================================
+   10. TOAST NOTIFICATIONS (GOOGLE SNACKBAR STYLE)
+   ========================================================================= */
+.gcp-toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gcp-toast {
+  background: #202124;
+  color: #ffffff;
+  padding: 12px 18px;
+  border-radius: 8px;
+  box-shadow: var(--gcp-shadow-2);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  min-width: 280px;
+  max-width: 440px;
+  animation: toastSlideIn 0.2s ease-out;
+}
+
+.gcp-toast.toast-success { border-left: 4px solid var(--google-green); }
+.gcp-toast.toast-warning { border-left: 4px solid var(--google-yellow); }
+.gcp-toast.toast-error   { border-left: 4px solid var(--google-red); }
+.gcp-toast.toast-info    { border-left: 4px solid var(--google-blue); }
+
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Action toolbars in tabs */
+.tab-action-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.tab-action-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.gcp-btn-sm {
+  padding: 4px 10px;
+  font-size: 11px;
+}
+
+.gcp-segmented-group {
+  display: inline-flex;
+  border: 1px solid var(--gcp-border);
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--gcp-bg-surface);
+}
+
+.gcp-segmented-btn {
+  background: transparent;
+  border: none;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--gcp-text-secondary);
+  cursor: pointer;
+  border-right: 1px solid var(--gcp-border-light);
+  transition: all 0.12s;
+}
+
+.gcp-segmented-btn:last-child {
+  border-right: none;
+}
+
+.gcp-segmented-btn:hover {
+  background: var(--gcp-bg-hover);
+}
+
+.gcp-segmented-btn.active {
+  background: var(--gcp-bg-selected);
+  color: var(--google-blue);
+  font-weight: 700;
+}
+
 /* RESPONSIVENESS */
 @media (max-width: 1200px) {
   .gcp-kpi-row { grid-template-columns: repeat(3, 1fr); }
@@ -1539,3 +1833,4 @@ body.gcp-console-body {
   .gcp-search-bar { display: none; }
   .gcp-nav-drawer { position: fixed; height: calc(100vh - 48px); z-index: 999; }
 }
+
